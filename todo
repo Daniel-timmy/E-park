@@ -1,0 +1,12 @@
+email validation
+real time lot update
+password validation
+connecting flask with db and html
+parking space overview
+oauth
+stripe
+
+
+git remote add origin https://github.com/Daniel-timmy/E-park.git
+git branch -M main
+git push -u origin main
