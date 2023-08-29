@@ -31,6 +31,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
     </style>
 
     <!-- Jumbotron -->
@@ -43,7 +52,7 @@
             ">
                     <div class="card-body p-5 shadow-5 text-center align-items-center">
                         <div style="height: 70; width: 172px; margin-bottom: 50px;">
-                            <img src="images/epark.png" class="w-100 rounded-4 shadow-4"
+                            <img src="../static/images/epark.png" class="w-100 rounded-4 shadow-4"
                                  alt=""/>
                         </div>
 
@@ -54,31 +63,34 @@
 
                             <!-- Email input -->
                             <div class="form-outline mb-4">
-                                <input type="email" id="form3Example3" class="form-control" required/>
-                                <label class="form-label" for="form3Example3">Email address</label>
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class='form-control') }}
                             </div>
 
                             <!-- Password input -->
 
                             <div class="form-outline mb-4">
-                                <input type="password" id="password" class="form-control" required/>
-                                <label class="form-label" for="password">Password</label>
+                                {{ form.password.label(class='form-label') }}
+                                {{ form.password(class='form-control') }}
                             </div>
 
 
                             <!-- Submit button -->
-                            <button type="submit" class="btn btn-dark btn-block mb-4">
-                                Sign in
-                            </button>
+                            <div class="col-sm mb-5" style="width: 70px;">
+                                {{ form.submit.label() }}
+                                {{ form.submit(class='form-control btn btn-primary') }}
+
+                            </div>
                         </form>
-                        <p class="login-wrapper-footer-text">Need an account? <a href="#!" class="text-reset">Sign up</a></p>
+                        <p class="login-wrapper-footer-text">Need an account? <a href="#!" class="text-reset">Sign
+                            up</a></p>
 
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-6 mb-5 mb-lg-0" style="overflow: hidden;">
-                <img src="images/login_im.jpg" class="w-100  rounded-4 shadow-4" style="max-height: 100%;"
+                <img src="../static/images/login_im.jpg" class="w-100  rounded-4 shadow-4" style="max-height: 100%;"
                      alt=""/>
             </div>
         </div>

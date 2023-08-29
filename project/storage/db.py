@@ -1,9 +1,9 @@
 from dotenv import load_dotenv, find_dotenv
 from mongoengine import connect
 import os
-from models.user import User
-from models.booking import Booking
-from models.parking_lot import Lot
+from project.models.user import User
+from project.models.booking import Booking
+from project.models.parking_lot import Lot
 
 from pymongo import MongoClient
 
