@@ -1,0 +1,7 @@
+flask
+dotenv
+mongoengine
+pymongo
+flask_wtf
+wtforms
+datetime

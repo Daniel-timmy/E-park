@@ -10,9 +10,3 @@ class Booking(Document):
     plate_number = StringField(required=True)
     reservation_type = StringField(required=True)
     vehicle_picture = ImageField(required=False)
-
-
-
-# status = StringField(
-#         default='Active')  # write a function that changes the status based on the duration or cancellation
-#
