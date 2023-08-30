@@ -16,12 +16,12 @@ class BookingForm(FlaskForm):
     duration = IntegerField(label="Duration", validators=[InputRequired()])
     start_time = DateTimeField(label="Start time", default=datetime.utcnow())
     model = StringField(label="model", validators=[InputRequired()])
-    time_unit = RadioField(choices=['weeks', 'days', 'hours'],
-                           validators=[InputRequired()])
+    time_unit = SelectField(choices=['weeks', 'days', 'hours'],
+                            validators=[InputRequired()])
 
     plate_number = StringField(label="Plate number", validators=[InputRequired()])
-    reservation_type = RadioField(
-        choices=['Reservations'],
+    reservation_type = SelectField(
+        choices=['Reservations', 'On spot'],
         validators=[InputRequired()])  # to reduce the complexity of nav pills
     vehicle_image = FileField(label='Vehicle Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
     submit = SubmitField(label='Make payment')
