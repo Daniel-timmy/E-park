@@ -30,19 +30,18 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     </style>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">&times</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <!-- Jumbotron -->
     <div class="container py-4">
         <div class="row g-0 align-items-center">
@@ -57,7 +56,7 @@
                                  alt=""/>
                         </div>
 
-                        <form>
+                        <form method="POST" enctype="multipart/form-data">
                             <div class="text-dark" style="margin-top: 25px; margin-bottom: 25px;">
                                 <h4> Sign In</h4>
                             </div>
@@ -84,7 +83,8 @@
 
                             </div>
                         </form>
-                        <p class="login-wrapper-footer-text">Need an account? <a href="{{ url_for('register') }}" class="text-reset">Sign
+                        <p class="login-wrapper-footer-text">Need an account? <a href="{{ url_for('register') }}"
+                                                                                 class="text-reset">Sign
                             up</a></p>
 
                     </div>

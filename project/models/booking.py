@@ -1,7 +1,10 @@
+import uuid
+
 from mongoengine import Document, StringField, DateTimeField, ImageField
 
 
 class Booking(Document):
+    uId = StringField(default=str(uuid.uuid4()))
     lot = StringField(required=True)
     space = StringField(required=True)
     duration = DateTimeField(required=True)

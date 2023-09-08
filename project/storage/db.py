@@ -24,15 +24,27 @@ class DB:
     def insert(self, obj):
         """"""
         obj.save()
+        print('saved')
 
-    def get_one(self, id=None, cls=None):
+    def get_one(self, email=None, cls=None):
         """"""
-        if id is not None:
+        if email is not None and cls is not None:
             if cls in classes.values():
-                obj = cls.objects(id=id)
+                obj = cls.objects.get(email=email)
                 return obj
             else:
                 return None
+
+    def get_obj(self, id):
+        """"""
+        # if cls not in classes.values():
+        #     return None
+
+        all_cls = db.get_all(User)
+        for value in all_cls.values():
+            if value.uId == id:
+                return value
+        return None
 
     def get_all(self, cls=None):
         """"""
@@ -40,7 +52,7 @@ class DB:
         if cls in classes.values():
             objs = cls.objects()
             for obj in objs:
-                o_dict[str(obj.id)] = obj
+                o_dict[str(obj.uId)] = obj
             return o_dict
         else:
             return None
@@ -56,7 +68,8 @@ class DB:
 
 
 db = DB()
-user = User(first_name='dan')
+user = User(first_name='timmy455')
 res = db.get_one(cls=User)
 db.insert(user)
+res = db.get_one(cls=User)
 print(res)

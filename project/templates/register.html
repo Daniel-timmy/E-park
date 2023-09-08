@@ -31,7 +31,22 @@
 
 
 
+
+
+
+
     </style>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">&times</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <!-- Jumbotron -->
     <div class="container py-4">
@@ -47,7 +62,9 @@
                                  alt=""/>
                         </div>
 
-                        <form>
+                        <form method="POST" enctype="multipart/form-data">
+                            {{ form.hidden_tag() }}
+
                             <div class="text-left" style="text-align: left;">
                                 <h5>Personal Info:</h5>
                             </div>
@@ -57,16 +74,12 @@
                                     <div class="form-outline">
                                         {{ form.first_name.label(class="form-label") }}
                                         {{ form.first_name(class='form-control') }}
-                                        <!--                                        <input type="text" id="fName" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="fName">First name</label>-->
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <div class="form-outline">
                                         {{ form.last_name.label(class="form-label") }}
                                         {{ form.last_name(class='form-control') }}
-                                        <!--                                        <input type="text" id="lName" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="lName">Last name</label>-->
                                     </div>
                                 </div>
                             </div>
@@ -75,8 +88,6 @@
                             <div class="form-outline mb-4">
                                 {{ form.email.label(class="form-label") }}
                                 {{ form.email(class='form-control') }}
-                                <!--                                <input type="email" id="form3Example3" class="form-control" required/>-->
-                                <!--                                <label class="form-label" for="form3Example3">Email address</label>-->
                             </div>
 
                             <!-- Password input -->
@@ -86,16 +97,12 @@
                                     <div class="form-outline">
                                         {{ form.password.label(class="form-label") }}
                                         {{ form.password(class='form-control') }}
-                                        <!--                                        <input type="password" id="password" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="password">Password</label>-->
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <div class="form-outline">
                                         {{ form.password1.label(class="form-label") }}
                                         {{ form.password1(class='form-control') }}
-                                        <!--                                        <input type="password" id="cPassword" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="cPassword">Confirm Password</label>-->
                                     </div>
                                 </div>
                             </div>
@@ -107,33 +114,28 @@
                                     <div class="form-outline">
                                         {{ form.vehicle_model.label(class="form-label") }}
                                         {{ form.vehicle_model(class='form-control') }}
-                                        <!--                                        <input type="text" id="vModel" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="vModel">Vehicle Model</label>-->
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <div class="form-outline">
                                         {{ form.plate_number.label(class="form-label") }}
                                         {{ form.plate_number(class='form-control') }}
-                                        <!--                                        <input type="text" id="pNumber" class="form-control" required/>-->
-                                        <!--                                        <label class="form-label" for="pNumber">Vehicle Plate Number</label>-->
                                     </div>
                                 </div>
                             </div>
                             <div class="form-outline mb-4">
                                 {{ form.vehicle_image.label(class="form-label") }}
                                 {{ form.vehicle_image(class='form-control') }}
-                                <!--                                <input type="image" id="img" class="form-control"/>-->
-                                <!--                                <label class="form-label" for="form3Example3">Vehicle Image</label>-->
                             </div>
 
                             <!-- Submit button -->
-                            <button type="submit" class="btn btn-dark btn-block mb-4">
-                                Sign up
-                            </button>
+                            <div class="col mb-5">
+                                {{ form.submit(class="form-control btn btn-success", placeholder='Save profile') }}
+                            </div>
 
                         </form>
-                        <p class="login-wrapper-footer-text">Already have an account? <a href="{{ url_for('login') }}" class="text-reset">Sign
+                        <p class="login-wrapper-footer-text">Already have an account? <a href="{{ url_for('login') }}"
+                                                                                         class="text-reset">Sign
                             in</a></p>
 
                     </div>
