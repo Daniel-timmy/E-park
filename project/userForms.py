@@ -10,10 +10,11 @@ from project.models.user import User
 
 def validate_email(input_email):
     """it checks if a user with a particular email exist"""
-    from project import db
-    user = db.get_one(email=input_email, cls=User)
-    if user:
-        raise ValidationError('User with e-mail already exist')
+    try:
+        obj = User.objects.get(email=input_email)
+        return obj
+    except Exception:
+        return None
 
 
 class UserForm(FlaskForm):

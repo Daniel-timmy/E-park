@@ -1,23 +1,27 @@
 import uuid
+from datetime import datetime
 
 from flask_login import UserMixin, LoginManager
 from mongoengine import Document, StringField, EmailField, ImageField, DateTimeField, EmbeddedDocument, \
-    EmbeddedDocumentField, ListField, IntField, BinaryField
+    EmbeddedDocumentField, ListField, IntField
 from project import app
 
 login_manager = LoginManager(app)
 
 
 class Receipt(EmbeddedDocument):
+    uId = StringField(default=str(uuid.uuid4()))
     status = StringField(required=True)
     lot = StringField(required=True)
     space = StringField(required=True)
-    duration = DateTimeField(required=True)
-    date = DateTimeField(required=False)
+    duration = StringField(required=True)
+    created_at = DateTimeField(default=datetime.utcnow(), required=False)
+    start_time = DateTimeField(required=False)
     model = StringField(required=True)
     plate_number = StringField(required=True)
-    tType = StringField(required=True)
+    reservation_type = StringField(required=True)
     amount = IntField(required=True)
+    vehicle_picture = ImageField(required=False)
 
 
 @login_manager.user_loader
@@ -31,6 +35,7 @@ class User(Document, UserMixin):
     first_name = StringField(required=True)
     last_name = StringField(required=False)
     email = EmailField(required=False)
+    created_at = DateTimeField(default=datetime.utcnow(), required=False)
     password_hash = StringField(required=False)
     vehicle_model = StringField(required=False)
     plate_number = StringField(required=False)
@@ -51,4 +56,4 @@ class User(Document, UserMixin):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
     def get_id(self):
-        return str(self.id)
+        return str(self.uId)

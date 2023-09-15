@@ -60,8 +60,11 @@ class DB:
     def update_booking_status(self):
         """"""
 
-    def update_user_profile(self):
+    def update_user_receipt(self, uId, receipts):
         """"""
+        obj = User.objects.get(uId=uId)
+        obj.update(push__receipts=receipts)
+        print("success")
 
     def delete(self):
         """"""

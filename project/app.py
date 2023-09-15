@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import stripe
 from flask import render_template, request, redirect, flash, url_for
 from flask_login import login_user, login_required, logout_user, current_user
@@ -5,7 +7,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from project import app, db, login_manager
 from project.loginForm import LoginForm, user_confirmation
 from project.bookingForms import BookingForm
-from project.models.user import User
+from project.models.user import User, Receipt
 from project.userForms import UserForm, validate_email
 
 app.config['SECRET_KEY'] = '23bb8ccb2331455dc681eec4'
@@ -13,8 +15,11 @@ app.config[
     'STRIPE_PUBLIC_KEY'] = 'pk_test_51Nnk4hHFmbL2tNiZaiBGBtofoa4syCp6P3F1zLntka00KFJiXXUvXMzkVTEgxpbk8NNx0NKqsSiEru1wsyXKoth600lOW00m73'
 app.config[
     'STRIPE_SECRET_KEY'] = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYyzbzM7bRWHvKzXxrNTzCADpH8KlP2aGRIr2O005tmzhF1Z'
+stripe.api_key = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYyzbzM7bRWHvKzXxrNTzCADpH8KlP2aGRIr2O005tmzhF1Z'
 login_manager.login_view = 'login'
 
+
+surge = 1
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -34,10 +39,10 @@ def login():
         if user:
             login_user(user)
             print(str(current_user))
-            return render_template('dashboard.html')
+            return redirect(url_for('dashboard'))
         else:
             print('failed')
-            # flash('Wrong email or password', category='danger')
+            flash('Wrong email or password', category='danger')
 
     return render_template('login.html', form=form)
 
@@ -50,44 +55,67 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@app.route('/booking', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/stripe_payment/<uId>/<amount>', methods=['GET', 'POST'], strict_slashes=False)
+@login_required
+def stripe_payment(uId, amount):
+    """bookings route"""
+    amount = int(amount)
+    qty = amount / (500 * surge)
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': 'price_1NnqAjHFmbL2tNiZhdxyclOP',
+                    'quantity': int(qty),
+                },
+            ],
+            mode='payment',
+            success_url=url_for('dashboard', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('cancel', _external=True),
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+
+
+@app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def bookings():
-    """bookings route"""
-    form = BookingForm()
-    return render_template('bookings.html', form=form)
-
-
-@app.route('/stripe_payment', methods=['GET', 'POST'], strict_slashes=False)
-@login_required
-def stripe_payment():
-    """bookings route"""
     form = BookingForm()
     if form.validate_on_submit():
+        # get the form and crete arecet ig=
+        vehicle_image = request.files['vehicle_image']
+        duration = ''
+        if form.time_unit.data == 'hours':
+            duration = str(timedelta(hours=form.duration.data)) + 'hour(s)'
+        else:
+            duration = str(timedelta(days=form.duration.data)) + 'day(s)'
+        amt = amount(form.duration.data, form.time_unit.data)
+        print("amount:", amt)
+        receipt = Receipt(status="Active",
+                          lot=form.lot.data,
+                          space=form.space.data,
+                          duration=duration,
+                          start_time=form.start_time.data,
+                          model=form.model.data,
+                          plate_number=form.plate_number.data,
+                          reservation_type=form.reservation_type.data,
+                          amount=amt,
+                          )
+        current_user_uid = current_user.uId
 
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
-                    {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        'price': 'price_1NnqAjHFmbL2tNiZhdxyclOP',
-                        'quantity': 1,
-                    },
-                ],
-                mode='payment',
-                success_url=url_for('dashboard', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=url_for('cancel', _external=True),
-            )
-        except Exception as e:
-            return str(e)
+        db.update_user_receipt(uId=current_user_uid, receipts=receipt)
 
-    return render_template('dashboard.html', checkout_session_id=checkout_session['id'],
-                           checkout_public_key=app.config['STRIPE_PUBLIC_KEY'])
+        return redirect(url_for('stripe_payment', uId=current_user.uId, amount=amt))
+    return render_template('bookings.html', form=form)
 
 
 @app.route('/cancel', methods=['GET'], strict_slashes=False)
 @login_required
-def success():
+def cancel():
     render_template('cancel.html')
 
 
@@ -154,6 +182,13 @@ def sign_out():
     return render_template('landing_page.html')
 
 
-
 # flash('You are successfully logged in {}'
-            #       .format(user.first_name), category='primary')
+#       .format(user.first_name), category='primary')
+
+
+def amount(duration, unit, surge=1):
+    """"""
+    if unit == "hours":
+        return duration * 500 * surge
+    else:
+        return duration * 500 * 24 * surge

@@ -16,7 +16,7 @@ class BookingForm(FlaskForm):
     duration = IntegerField(label="Duration", validators=[InputRequired()])
     start_time = DateTimeField(label="Start time", default=datetime.utcnow())
     model = StringField(label="model", validators=[InputRequired()])
-    time_unit = SelectField(choices=['weeks', 'days', 'hours'],
+    time_unit = SelectField(choices=['days', 'hours'],
                             validators=[InputRequired()])
 
     plate_number = StringField(label="Plate number", validators=[InputRequired()])

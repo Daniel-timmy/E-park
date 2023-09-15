@@ -40,6 +40,7 @@
 
 
 
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -66,7 +67,7 @@
 
 <div class="container-fluid">
     <div class="row">
-       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
             <div class="position-sticky pt-3" style="margin-top: 10px;">
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                     <span>MENU</span>
@@ -82,7 +83,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('stripe_payment') }}">
+                        <a class="nav-link active" href="{{ url_for('bookings') }}">
                             <span data-feather="file"></span>
                             Make a booking
                         </a>
@@ -125,7 +126,9 @@
 
                         </div>
                         <div class="card-body">
-                            <form class="row g-3">
+                            <form class="row g-3" method="POST" enctype="multipart/form-data">
+                            {{ form.hidden_tag() }}
+
                                 <div class="col-md-6">
 
                                     {{ form.lot.label(class="form-label") }}
@@ -144,18 +147,26 @@
                                     {{ form.duration(class="form-control") }}
                                 </div>
                                 <script>
-<!--                                    function show_start(){-->
-<!--                                        var input = document.getElementById('res');-->
-<!--                                        if (input.value === 'Reservations'){-->
-<!--                                            show the start time element-->
-<!--                                        }else{-->
-<!--                                        hide the start time element-->
-<!--                                        }-->
-<!--                                    }-->
-                                        function total_amt(){
-
-<!--                document.getElementById('loct').value = "Geolocation is not supported by this browser."-->
+                                    function show_start(){
+                                        var input = document.getElementById('res');
+                                        if (input.value === 'Reservations'){
+                                            show the start time element
+                                        }else{
+                                        hide the start time element
                                         }
+                                    }
+                                    function total_amt(){
+                                        amount = 0;
+
+                                        if (unit === "hours") {
+                                            amount = duration * 500 * surge;
+                                            }
+                                        else{
+                                            amount = duration * 500 * 24 * surge;
+                                            }
+                                            document.getElementById('amt').value = ""
+                                        }
+
 
 
                                 </script>
@@ -174,7 +185,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     {{ form.model.label(class="form-label") }}
-                                    {{ form.model(class="form-control") }}
+                                    {{ form.model(class="form-control", id="amt") }}
                                 </div>
                                 <div class="col-md-6">
                                     {{ form.plate_number.label(class="form-label") }}
@@ -186,8 +197,7 @@
                                 </div>
                                 <div>
                                     <h5>
-                                        Total amount:
-                                    </h5>
+                                        Total amount: </h5> <h5 id="amt"></h5>
                                 </div>
                                 <div class="col-12" style="margin-top: 30px;">
                                     {{ form.submit(class='form-control btn btn-primary') }}

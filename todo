@@ -1,10 +1,14 @@
-email validation
-real time lot update
-password validation
-connecting flask with db and html
+email validation : done
+password validation : done
+connecting flask with db and html : done
+stripe : done
+
+making the bookings page responsive
+updating my parking lot info based on use
+updating my receipt based on active or completed transactions
+populating my dashboard, receipt and profile with data
 parking space overview
-oauth
-stripe
+real time lot update
 
 
 git remote add origin https://github.com/Daniel-timmy/E-park.git
