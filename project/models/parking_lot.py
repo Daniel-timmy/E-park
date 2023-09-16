@@ -7,7 +7,7 @@ from mongoengine import EmbeddedDocument, EmbeddedDocumentField, IntField, Docum
 class Space(EmbeddedDocument):
     uId = StringField(default=str(uuid.uuid4()))
     space = StringField(required=True)
-    time_left = IntField(required=True)
+    time_left = IntField(required=True)  # in minutes
     status = StringField(required=True)  # reserved, occupied, empty
 
 

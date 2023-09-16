@@ -5,12 +5,30 @@ stripe : done
 
 making the bookings page responsive
 updating my parking lot info based on use
+
 updating my receipt based on active or completed transactions
+
 populating my dashboard, receipt and profile with data
+
+time
+
 parking space overview
-real time lot update
 
 
 git remote add origin https://github.com/Daniel-timmy/E-park.git
 git branch -M main
 git push -u origin main
+
+
+
+function total_amt(){
+                                        amount = 0;
+
+                                        if (unit === "hours") {
+                                            amount = duration * 500 * surge;
+                                            }
+                                        else{
+                                            amount = duration * 500 * 24 * surge;
+                                            }
+                                            document.getElementById('amt').value = ""
+                                        }

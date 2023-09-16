@@ -40,6 +40,7 @@ class User(Document, UserMixin):
     vehicle_model = StringField(required=False)
     plate_number = StringField(required=False)
     vehicle_image = ImageField(required=False)
+    profile_pic = ImageField(required=False)
     receipts = ListField(EmbeddedDocumentField(Receipt))
 
     @property

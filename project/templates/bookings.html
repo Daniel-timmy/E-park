@@ -41,6 +41,10 @@
 
 
 
+
+
+
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -102,7 +106,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('profile') }}">
-                            <span data-feather="bar-chart-2"></span>
                             Profile
                         </a>
                     </li>
@@ -119,7 +122,7 @@
             </div>
             <div class="container-fluid border-primary"
                  style="margin-top: 60px; border: 2px solid;padding: 20px; display: grid; place-items: center;">
-                <div class="row">
+                <div class="row row-cols-1 row-cols-md-2 g-4">
                     <div class="card text-center bg-light"
                          style="margin: 5px; height: 100%; width: 500px; padding: 0px;">
                         <div class="card-header bg-dark" style="height: 60px;">
@@ -127,7 +130,7 @@
                         </div>
                         <div class="card-body">
                             <form class="row g-3" method="POST" enctype="multipart/form-data">
-                            {{ form.hidden_tag() }}
+                                {{ form.hidden_tag() }}
 
                                 <div class="col-md-6">
 
@@ -144,38 +147,21 @@
                                 <!--      radio check for reservation-->
                                 <div>
                                     {{ form.duration.label(class="form-label") }}
-                                    {{ form.duration(class="form-control") }}
+                                    {{ form.duration(class="form-control", id="duration") }}
                                 </div>
+                                <div>
+                                    {{ form.time_unit(id="unit") }}
+                                </div>
+
                                 <script>
-                                    function show_start(){
-                                        var input = document.getElementById('res');
-                                        if (input.value === 'Reservations'){
-                                            show the start time element
-                                        }else{
-                                        hide the start time element
-                                        }
-                                    }
-                                    function total_amt(){
-                                        amount = 0;
-
-                                        if (unit === "hours") {
-                                            amount = duration * 500 * surge;
-                                            }
-                                        else{
-                                            amount = duration * 500 * 24 * surge;
-                                            }
-                                            document.getElementById('amt').value = ""
-                                        }
-
-
 
                                 </script>
                                 <div>
-                                    {{ form.time_unit() }}
+                                    {{ form.reservation_type(id="res") }}
                                 </div>
-                                {{ form.reservation_type(id='res') }}
+                                <!--                                {{ form.reservation_type(id='res') }}-->
 
-                                <div>
+                                <div id="start">
                                     {{ form.start_time.label(class="form-label") }}
                                     {{ form.start_time(class="form-control") }}
                                 </div>
@@ -185,7 +171,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     {{ form.model.label(class="form-label") }}
-                                    {{ form.model(class="form-control", id="amt") }}
+                                    {{ form.model(class="form-control") }}
                                 </div>
                                 <div class="col-md-6">
                                     {{ form.plate_number.label(class="form-label") }}
@@ -195,10 +181,32 @@
                                     {{ form.vehicle_image.label(class="form-label") }}
                                     {{ form.vehicle_image(class="form-control", type='file') }}
                                 </div>
-                                <div>
-                                    <h5>
-                                        Total amount: </h5> <h5 id="amt"></h5>
-                                </div>
+
+                                <!-- Display the calculated amount -->
+                                <label for="amt" onclick="total_amt()">Click to get total:</label>
+                                <input type="text" id="amt" style="background-color: transparent; border: 0px" readonly>
+
+                                <!-- JavaScript function -->
+                                <script>
+        function total_amt() {
+            var unit = document.getElementById('unit').value;
+            var duration = parseFloat(document.getElementById('duration').value);
+            var surge = 1;
+            var amount = 0;
+
+            if (unit === "hours") {
+                amount = duration * 500 * surge;
+            } else {
+                amount = duration * 500 * 24 * surge;
+            }
+
+            document.getElementById('amt').value = amount;
+        }
+
+
+
+
+                                </script>
                                 <div class="col-12" style="margin-top: 30px;">
                                     {{ form.submit(class='form-control btn btn-primary') }}
                                 </div>
@@ -206,8 +214,22 @@
 
                         </div>
                     </div>
+                    <div>
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for key, value in lot.items() %}
+                            <div class="col">
+                                <div class="card border-primary mb-3" style="max-width: 18rem; max">
+                                    <div class="card-header">Available spaces in {{ key }}</div>
+                                    <div class="card-body text-primary">
+                                        <p class="card-text">{{ value }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
                 </div>
-            </div>
 
         </main>
     </div>

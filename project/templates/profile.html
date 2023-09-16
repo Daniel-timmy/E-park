@@ -113,7 +113,7 @@
             <div class="card mb-3" style="max-width: 80%; height: 500px;">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="images/v_img.jpg" class="img-fluid rounded-start" style="height: 500px; width: 400px;"
+                        <img src="../static/images/profile.jpg" class="img-fluid rounded-start" style="height: 500px; width: 400px;"
                              alt="...">
                     </div>
                     <div class="col-md-8">
@@ -123,10 +123,10 @@
                         <div class="container border-primary" style="border: 2px solid #000; border-radius: 10px; margin-right: 10px; margin-left: 10px; width: 90%">
                             <div>
                                 <div style="margin-left: 30px;">
-                                    <h4>Name:</h4>
+                                    <h4>Name: </h4>
                                 </div>
                                 <div style="margin-left: 70px;">
-                                    <h6>Fred John</h6>
+                                    <h6>{{ current_user.first_name }} {{ current_user.last_name }}</h6>
                                 </div>
                             </div>
                             <div>
@@ -134,7 +134,31 @@
                                     <h4>Email:</h4>
                                 </div>
                                 <div style="margin-left: 70px;">
-                                    <h6>fred@gmail.com</h6>
+                                    <h6>{{ current_user.email }}</h6>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="margin-left: 30px;">
+                                    <h4>Vehicle model:</h4>
+                                </div>
+                                <div style="margin-left: 70px;">
+                                    <h6>{{ current_user.vehicle_model }}</h6>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="margin-left: 30px;">
+                                    <h4>Plate number:</h4>
+                                </div>
+                                <div style="margin-left: 70px;">
+                                    <h6>{{ current_user.plate_number }}</h6>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="margin-left: 30px;">
+                                    <h4>Joined:</h4>
+                                </div>
+                                <div style="margin-left: 70px;">
+                                    <h6>{{ current_user.created_at.strftime("%Y-%m-%d") }}</h6>
                                 </div>
                             </div>
                         </div>

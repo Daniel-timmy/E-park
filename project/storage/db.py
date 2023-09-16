@@ -46,18 +46,33 @@ class DB:
                 return value
         return None
 
+    def get_lot(self, name):
+        """"""
+        # if cls not in classes.values():
+        #     return None
+
+        all_cls = db.get_all(Lot)
+        for value in all_cls.values():
+            if value.lot_name == name:
+                return value
+        return None
+
     def get_all(self, cls=None):
         """"""
         o_dict = {}
+        b_dict = {}
         if cls in classes.values():
             objs = cls.objects()
             for obj in objs:
-                o_dict[str(obj.uId)] = obj
-            return o_dict
-        else:
-            return None
+                o_dict[obj.uId] = obj
+            b_dict.update(o_dict)
+            for key, value in b_dict.items():
+                print(f'Key: {key}, Value: {value}')
 
-    def update_booking_status(self):
+            return b_dict
+
+
+    def update_space_status(self):
         """"""
 
     def update_user_receipt(self, uId, receipts):

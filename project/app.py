@@ -1,4 +1,6 @@
-from datetime import timedelta
+import base64
+from datetime import timedelta, datetime
+from shlex import join
 
 import stripe
 from flask import render_template, request, redirect, flash, url_for
@@ -7,6 +9,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from project import app, db, login_manager
 from project.loginForm import LoginForm, user_confirmation
 from project.bookingForms import BookingForm
+from project.models.parking_lot import Lot
 from project.models.user import User, Receipt
 from project.userForms import UserForm, validate_email
 
@@ -18,8 +21,8 @@ app.config[
 stripe.api_key = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYyzbzM7bRWHvKzXxrNTzCADpH8KlP2aGRIr2O005tmzhF1Z'
 login_manager.login_view = 'login'
 
-
 surge = 1
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -52,7 +55,42 @@ def login():
 @login_required
 def dashboard():
     """dashboard route"""
-    return render_template('dashboard.html')
+    current_rate = 500
+    lot = Lot.objects()
+    car_status = ''
+    mReceipts = []
+    image = []
+
+    pSpace = []
+    for individual_lot in lot:
+        for individual_space in individual_lot.space:
+            if individual_space.status == 'empty':
+                pSpace.append(individual_space.space)
+    receipts = current_user.receipts
+    #
+    # b = app.extensions['mongoengine'][1]
+    # fs = b.connection.gridfs
+    #
+    #     # Replace 'vehicle_image' with the actual field name in your model
+    # vehicle_image = fs.get(current_user.vehicle_image.grid_id)
+    #
+    # image_data = vehicle_image.read()
+    # image = base64.b64encode(image_data).decode('utf-8')
+
+    for receipt in receipts:
+        if receipt.status == 'Active':
+            if receipt.plate_number == current_user.plate_number:
+                car_status = 'Parked'
+                break
+            else:
+                car_status = 'Not parked'
+
+    for receipt in receipts:
+        if receipt.status == 'Active':
+            mReceipts.append(receipt)
+
+    return render_template('dashboard.html', current_rate=current_rate, available_space=len(pSpace),
+                           current_user=current_user, car_status=car_status, mReceipts=mReceipts, mimetype='jpg')
 
 
 @app.route('/stripe_payment/<uId>/<amount>', methods=['GET', 'POST'], strict_slashes=False)
@@ -84,33 +122,65 @@ def stripe_payment(uId, amount):
 @app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def bookings():
+    ldict = {}
+    lot = Lot.objects()
+
+    separator = ', '
+
+    for individual_lot in lot:
+        pSpace = []
+        for individual_space in individual_lot.space:
+            if individual_space.status == 'empty':
+                pSpace.append(individual_space.space)
+        ldict[individual_lot.lot_name] = separator.join(pSpace)
+
     form = BookingForm()
     if form.validate_on_submit():
-        # get the form and crete arecet ig=
+
         vehicle_image = request.files['vehicle_image']
         duration = ''
+        time_left = 0
+        sTime = form.start_time.data
         if form.time_unit.data == 'hours':
+            time_left = form.duration.data * 60
             duration = str(timedelta(hours=form.duration.data)) + 'hour(s)'
         else:
+            time_left = form.duration.data * 60 * 24
             duration = str(timedelta(days=form.duration.data)) + 'day(s)'
+
+        if form.reservation_type.data == 'On spot':
+            sTime = datetime.utcnow()
+        else:
+            sTime = form.start_time.data
+
         amt = amount(form.duration.data, form.time_unit.data)
         print("amount:", amt)
         receipt = Receipt(status="Active",
                           lot=form.lot.data,
                           space=form.space.data,
                           duration=duration,
-                          start_time=form.start_time.data,
+                          start_time=sTime,
                           model=form.model.data,
                           plate_number=form.plate_number.data,
                           reservation_type=form.reservation_type.data,
                           amount=amt,
                           )
+
+        uLot = Lot.objects.get(lot_name=form.lot.data)
+        for space in uLot.space:
+            if space.space == form.space.data:
+                if form.reservation_type.data == 'On spot':
+                    space.status = "occupied"
+                else:
+                    space.status = "reserved"
+                space.time_left = time_left
+                uLot.save()
         current_user_uid = current_user.uId
 
         db.update_user_receipt(uId=current_user_uid, receipts=receipt)
 
         return redirect(url_for('stripe_payment', uId=current_user.uId, amount=amt))
-    return render_template('bookings.html', form=form)
+    return render_template('bookings.html', form=form, lot=ldict)
 
 
 @app.route('/cancel', methods=['GET'], strict_slashes=False)
@@ -130,6 +200,30 @@ def landing_page():
 @login_required
 def payments():
     """route to payment page"""
+    mReceipts = []
+    receipts = current_user.receipts
+    for receipt in receipts:
+        mReceipts.append(receipt)
+    return render_template('payment.html', mReceipts=mReceipts)
+
+
+@app.route('/cancel_order/<string:uid>', methods=['GET', 'POST'], strict_slashes=False)
+@login_required
+def cancel_order(uid):
+    """"""
+    mReceipts = []
+    receipts = current_user.receipts
+    for receipt in receipts:
+        if receipt.uId == uid:
+            receipt.status = "Canceled"
+            current_user.save()
+            uLot = Lot.objects.get(lot_name=receipt.lot)
+            for space in uLot.space:
+                if space.space == receipt.space:
+                    space.time_left = 0
+                    space.status = 'empty'
+                    uLot.save()
+                    break
     return render_template('payment.html')
 
 
@@ -137,7 +231,7 @@ def payments():
 @login_required
 def profile():
     """route to profile page"""
-    return render_template('profile.html')
+    return render_template('profile.html', current_user=current_user)
 
 
 @app.route('/sign_up', methods=['GET', 'POST'], strict_slashes=False)
@@ -150,9 +244,8 @@ def register():
             return redirect(url_for('register.html', form=form))
         print('great')
 
-        file_v = request.files['vehicle_image']
-        mimetype_v = file_v.mimetype
-        print(file_v)
+        profile_pic = request.files['profile_pic']
+        mimetype_v = profile_pic.mimetype
         vehicle_image = request.files['vehicle_image']
 
         user = User(first_name=form.first_name.data,
@@ -160,7 +253,8 @@ def register():
                     email=form.email.data,
                     vehicle_model=form.vehicle_model.data,
                     plate_number=form.plate_number.data,
-                    vehicle_image=vehicle_image
+                    vehicle_image=vehicle_image,
+                    profile_pic=profile_pic
                     )
         user.password = form.password.data
         print(form.email.data)
@@ -175,7 +269,7 @@ def register():
     return render_template('register.html', form=form)
 
 
-@app.route('/sign_up', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/sign_out', methods=['GET', 'POST'], strict_slashes=False)
 def sign_out():
     """"""
     logout_user()

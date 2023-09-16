@@ -115,7 +115,7 @@
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h4 class="card-title text-primary">120</h4>
+                                    <h4 class="card-title text-primary">{{ available_space }}</h4>
                                     <h6 class="card-text text-dark">Available parking spaces</h6>
                                 </div>
                             </div>
@@ -147,7 +147,7 @@
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h4 class="card-title text-primary">1000 naira/hr</h4>
+                                    <h4 class="card-title text-primary">{{ current_rate }} naira/hr</h4>
                                     <h6 class="card-text">Current rates</h6>
                                 </div>
                             </div>
@@ -160,7 +160,7 @@
                 <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
                     <div class="row g-0">
                         <div class="col-md-4">
-                            <img src="../static/images/v_img.jpg" class="img-fluid rounded-start" style="height: 250px;"
+                            <img src="../static/images/profile.jpg" class="img-fluid rounded-start" style="height: 250px;"
                                  alt="...">
                         </div>
                         <div class="col-md-8">
@@ -175,8 +175,8 @@
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td scope="row">Fred, John</td>
-                                        <td>fred@gmail.com</td>
+                                        <td scope="row">{{ current_user.first_name }}, {{ current_user.last_name }}</td>
+                                        <td>{{ current_user.email }}</td>
                                         <td>5000</td>
                                     </tr>
                                     </tbody>
@@ -201,16 +201,14 @@
                                     <tr>
                                         <th scpoe="col">Model</th>
                                         <th scpoe="col">Plate No.</th>
-                                        <th scpoe="col">Year</th>
                                         <th scpoe="col">Status</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td scope="row">Camry</td>
-                                        <td>Fk 222 jkl</td>
-                                        <td>2008</td>
-                                        <td>Parked</td>
+                                        <td scope="row">{{ current_user.vehicle_model }}</td>
+                                        <td>{{ current_user.plate_number }}</td>
+                                        <td>{{ car_status }}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -237,36 +235,20 @@
                             </tr>
                             </thead>
                             <tbody>
+                            {% for receipt in mReceipts %}
                             <tr>
-                                <td scope="row">1</td>
-                                <td>Mon, 21 Aug 23</td>
-                                <td>On spot</td>
-                                <td>LK 342 FKJ</td>
-                                <td>2hrs</td>
-                                <td>2000</td>
-                                <td>Active</td>
-                                <td>
+                                <td scope="row">2</td>
+                                <td>{{ receipt.created_at.strftime("%Y-%m-%d") }}</td>
+                                <td>{{ receipt.reservation_type }}</td>
+                                <td>{{ receipt.plate_number }}</td>
+                                <td>{{ receipt.duration }}</td>
+                                <td>{{ receipt.amount }}</td>
+                                <td>{{ receipt.status }}</td>
+                                 <td>
                                     <button type="button" class="btn btn-primary">Cancel</button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td scope="row">2</td>
-                                <td>Mon, 21 Aug 23</td>
-                                <td>On spot</td>
-                                <td>LK 342 FKJ</td>
-                                <td>2hrs</td>
-                                <td>2000</td>
-                                <td>Completed</td>
-                            </tr>
-                            <tr>
-                                <td scope="row">3</td>
-                                <td>Mon, 21 Aug 23</td>
-                                <td>On spot</td>
-                                <td>LK 342 FKJ</td>
-                                <td>2hrs</td>
-                                <td>2000</td>
-                                <td>Completed</td>
-                            </tr>
+                            {% endfor %}
                             </tbody>
 
                         </table>

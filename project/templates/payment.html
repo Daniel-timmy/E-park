@@ -33,6 +33,8 @@
         }
       }
 
+
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -108,6 +110,7 @@
                 <div style="margin-top: 60px;">
                     <div class="card">
                         <div class="card-body">
+                            {% for receipt in mReceipts %}
                             <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
                                 <div class="card-body">
                                     <table class="table table-hover table-borderless">
@@ -123,49 +126,27 @@
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td scope="row">Mon, 21 Aug 23</td>
-                                            <td>On spot</td>
-                                            <td>LK 342 FKJ</td>
-                                            <td>2hrs</td>
-                                            <td>2000</td>
-                                            <td>completed</td>
+                                            <td>{{ receipt.created_at.strftime("%Y-%m-%d") }}</td>
+                                            <td>{{ receipt.reservation_type }}</td>
+                                            <td>{{ receipt.plate_number }}</td>
+                                            <td>{{ receipt.duration }}</td>
+                                            <td>{{ receipt.amount }}</td>
+                                            <td>{{ receipt.status }}</td>
+                                            {% if receipt.status == 'Active' %}
                                             <td>
-                                                <button type="button" class="btn btn-primary">Show</button>
+                                                <button type="button" class="btn btn-primary">Cancel</button>
+                                            </td>
+                                            {% endif %}
+                                            <td>
+                                                <button type="button" class="btn btn-primary" href="{{ url_for('cancel_order', uid=receipt.uId) }}">Show</button>
                                             </td>
                                         </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
-                                <div class="card-body">
-                                    <table class="table table-hover table-borderless">
-                                        <thead class="thead-dark">
-                                        <tr>
-                                            <th scope="col">Date</th>
-                                            <th scope="col">Type</th>
-                                            <th scope="col">Plate No.</th>
-                                            <th scope="col">Duration</th>
-                                            <th scope="col">Amount</th>
-                                            <th scope="col">Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td scope="row">Mon, 21 Aug 23</td>
-                                            <td>On spot</td>
-                                            <td>LK 342 FKJ</td>
-                                            <td>2hrs</td>
-                                            <td>2000</td>
-                                            <td>completed</td>
-                                            <td>
-                                                <button type="button" class="btn btn-primary">Show</button>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            {% endfor %}
+
                         </div>
                     </div>
                 </div>
