@@ -25,3 +25,4 @@ class BookingForm(FlaskForm):
         validators=[InputRequired()])  # to reduce the complexity of nav pills
     vehicle_image = FileField(label='Vehicle Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
     submit = SubmitField(label='Make payment')
+

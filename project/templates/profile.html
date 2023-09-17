@@ -107,7 +107,7 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="mb-2 text-primary" style="margin-bottom: 30px;">
                 <h1>
-                    Welcome, Fred John...
+                    Welcome, {{ current_user.first_name }} {{ current_user.last_name }}...
                 </h1>
             </div>
             <div class="card mb-3" style="max-width: 80%; height: 500px;">
@@ -166,9 +166,9 @@
                 </div>
             </div>
             <div>
-                <button type="button" class="btn btn-primary"> Edit
+<!--                <button type="button" class="btn btn-primary"> Edit-->
 
-                </button>
+<!--                </button>-->
             </div>
 
         </main>

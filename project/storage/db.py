@@ -72,8 +72,16 @@ class DB:
             return b_dict
 
 
-    def update_space_status(self):
+    def update_space_status(self,uLot, cUser, sStatus, rStatus, time_left):
         """"""
+        uLot.update(push__status=sStatus)
+        print('lot update succesfull')
+        cUser.update(push__status=rStatus)
+        print('receipt update succesfull')
+        uLot.update(push__time_left=time_left)
+
+
+
 
     def update_user_receipt(self, uId, receipts):
         """"""

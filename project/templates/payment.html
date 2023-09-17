@@ -35,6 +35,7 @@
 
 
 
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -132,14 +133,21 @@
                                             <td>{{ receipt.duration }}</td>
                                             <td>{{ receipt.amount }}</td>
                                             <td>{{ receipt.status }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary">Show</button>
+                                            </td>
                                             {% if receipt.status == 'Active' %}
                                             <td>
-                                                <button type="button" class="btn btn-primary">Cancel</button>
+
+                                                <button type="button" class="btn btn-primary"
+                                                        onclick="window.location.href='{{ url_for('cancel_order', uid=receipt.uId) }}'">
+                                                    Cancel
+                                                </button>
+
                                             </td>
                                             {% endif %}
-                                            <td>
-                                                <button type="button" class="btn btn-primary" href="{{ url_for('cancel_order', uid=receipt.uId) }}">Show</button>
-                                            </td>
+
+
                                         </tr>
                                         </tbody>
                                     </table>

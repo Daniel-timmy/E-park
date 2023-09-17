@@ -1,6 +1,6 @@
 import base64
 from datetime import timedelta, datetime
-from shlex import join
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import stripe
 from flask import render_template, request, redirect, flash, url_for
@@ -22,6 +22,10 @@ stripe.api_key = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYy
 login_manager.login_view = 'login'
 
 surge = 1
+
+scheduler = BackgroundScheduler(daemon=True)
+
+def receipt_lot_status_update():
 
 
 @login_manager.user_loader
@@ -119,10 +123,9 @@ def stripe_payment(uId, amount):
     return redirect(checkout_session.url, code=303)
 
 
-@app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
-@login_required
-def bookings():
+def get_lot_and_spaces():
     ldict = {}
+
     lot = Lot.objects()
 
     separator = ', '
@@ -133,20 +136,31 @@ def bookings():
             if individual_space.status == 'empty':
                 pSpace.append(individual_space.space)
         ldict[individual_lot.lot_name] = separator.join(pSpace)
+    return ldict
+
+
+def time_left_and_duration(unit, rDuration):
+    if unit == 'hours':
+        time_left = rDuration * 60
+        duration = str(timedelta(hours=rDuration)) + 'hour(s)'
+    else:
+        time_left = rDuration * 60 * 24
+        duration = str(timedelta(days=rDuration)) + 'day(s)'
+    return duration, time_left
+
+
+@app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
+@login_required
+def bookings():
+    ldict = get_lot_and_spaces()
 
     form = BookingForm()
     if form.validate_on_submit():
 
+        duration, time_left = time_left_and_duration(form.time_unit.data, form.duration.data)
+
         vehicle_image = request.files['vehicle_image']
-        duration = ''
-        time_left = 0
         sTime = form.start_time.data
-        if form.time_unit.data == 'hours':
-            time_left = form.duration.data * 60
-            duration = str(timedelta(hours=form.duration.data)) + 'hour(s)'
-        else:
-            time_left = form.duration.data * 60 * 24
-            duration = str(timedelta(days=form.duration.data)) + 'day(s)'
 
         if form.reservation_type.data == 'On spot':
             sTime = datetime.utcnow()
@@ -175,8 +189,8 @@ def bookings():
                     space.status = "reserved"
                 space.time_left = time_left
                 uLot.save()
-        current_user_uid = current_user.uId
 
+        current_user_uid = current_user.uId
         db.update_user_receipt(uId=current_user_uid, receipts=receipt)
 
         return redirect(url_for('stripe_payment', uId=current_user.uId, amount=amt))
@@ -200,17 +214,19 @@ def landing_page():
 @login_required
 def payments():
     """route to payment page"""
-    mReceipts = []
+    paymentReceipts = []
     receipts = current_user.receipts
     for receipt in receipts:
-        mReceipts.append(receipt)
-    return render_template('payment.html', mReceipts=mReceipts)
+        paymentReceipts.append(receipt)
+        paymentReceipts.reverse()
+    return render_template('payment.html', mReceipts=paymentReceipts)
 
 
 @app.route('/cancel_order/<string:uid>', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def cancel_order(uid):
     """"""
+
     mReceipts = []
     receipts = current_user.receipts
     for receipt in receipts:
@@ -224,7 +240,7 @@ def cancel_order(uid):
                     space.status = 'empty'
                     uLot.save()
                     break
-    return render_template('payment.html')
+    return render_template('dashboard.html')
 
 
 @app.route('/profile', methods=['GET', 'POST'], strict_slashes=False)
