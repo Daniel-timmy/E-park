@@ -26,6 +26,7 @@ surge = 1
 scheduler = BackgroundScheduler(daemon=True)
 
 def receipt_lot_status_update():
+    """"""
 
 
 @login_manager.user_loader
