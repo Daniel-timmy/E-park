@@ -94,8 +94,4 @@ class DB:
 
 
 db = DB()
-user = User(first_name='timmy455')
-res = db.get_one(cls=User)
-db.insert(user)
-res = db.get_one(cls=User)
-print(res)
+print('success')
