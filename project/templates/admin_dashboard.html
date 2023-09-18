@@ -77,24 +77,6 @@
                             Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('bookings') }}">
-                            <span data-feather="file"></span>
-                            Make a booking
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('payments') }}">
-                            <span data-feather="shopping-cart"></span>
-                            Payment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile') }}">
-                            <span data-feather="bar-chart-2"></span>
-                            Profile
-                        </a>
-                    </li>
                 </ul>
             </div>
         </nav>
@@ -128,19 +110,8 @@
                                             <td>{{ receipt.amount }}</td>
                                             <td>{{ receipt.status }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-primary">Show</button>
+                                                {{ receipt.email }}
                                             </td>
-                                            {% if receipt.status == 'Active' %}
-                                            <td>
-
-                                                <button type="button" class="btn btn-primary"
-                                                        onclick="window.location.href='{{ url_for('cancel_order', uid=receipt.uId) }}'">
-                                                    Cancel
-                                                </button>
-
-                                            </td>
-                                            {% endif %}
-
 
                                         </tr>
                                         </tbody>

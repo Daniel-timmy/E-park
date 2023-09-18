@@ -59,10 +59,6 @@
 
                         <form method="POST" enctype="multipart/form-data">
                             {{ form.hidden_tag() }}
-
-                            <div class="text-left" style="text-align: left;">
-                                <h5>Personal Info:</h5>
-                            </div>
                             <!-- 2 column grid layout with text inputs for the first and last names -->
                             <div class="row">
                                 <div class="col-md-6 mb-4">
@@ -102,31 +98,9 @@
                                 </div>
                             </div>
                             <div class="form-outline mb-4">
-                                {{ form.profile_pic.label(class="form-label") }}
-                                {{ form.profile_pic(class='form-control') }}
+                                {{ form.admin_code.label(class="form-label") }}
+                                {{ form.admin_code(class='form-control') }}
                             </div>
-                            <div style="text-align: left;">
-                                <h5>Vehicle Info:</h5>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <div class="form-outline">
-                                        {{ form.vehicle_model.label(class="form-label") }}
-                                        {{ form.vehicle_model(class='form-control') }}
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <div class="form-outline">
-                                        {{ form.plate_number.label(class="form-label") }}
-                                        {{ form.plate_number(class='form-control') }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-outline mb-4">
-                                {{ form.vehicle_image.label(class="form-label") }}
-                                {{ form.vehicle_image(class='form-control') }}
-                            </div>
-
                             <!-- Submit button -->
                             <div class="col mb-5">
                                 {{ form.submit(class="form-control btn btn-success", placeholder='Save profile') }}

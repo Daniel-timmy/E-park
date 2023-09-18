@@ -26,7 +26,7 @@ class UserForm(FlaskForm):
     vehicle_model = StringField(label='Vehicle Model', validators=[InputRequired()])
     plate_number = StringField(label='Plate Number', validators=[InputRequired()])
     vehicle_image = FileField(label='Vehicle Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
-    profile_pic = FileField(label='Vehicle Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
+    profile_pic = FileField(label='Profile picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
     submit = SubmitField(label='Sign up')
 
     # def validate_plate_number(self, input_username):

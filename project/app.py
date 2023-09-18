@@ -7,8 +7,11 @@ from flask import render_template, request, redirect, flash, url_for
 from flask_login import login_user, login_required, logout_user, current_user
 
 from project import app, db, login_manager
+# from project.AdminForm import AdminForm, admin_confirmation, AForm, validate_admin_email
 from project.loginForm import LoginForm, user_confirmation
 from project.bookingForms import BookingForm
+# from project.models.active_receipts import ActiveReceipt
+# from project.models.admin import Admin
 from project.models.parking_lot import Lot
 from project.models.user import User, Receipt
 from project.userForms import UserForm, validate_email
@@ -25,8 +28,9 @@ surge = 1
 
 scheduler = BackgroundScheduler(daemon=True)
 
-def receipt_lot_status_update():
-    """"""
+
+# def receipt_lot_status_update():
+#     """"""
 
 
 @login_manager.user_loader
@@ -34,6 +38,64 @@ def load_user(user_id):
     from project import db
     return db.get_obj(id=user_id)
 
+
+# @app.route('/admin_login', methods=['GET', 'POST'], strict_slashes=False)
+# def admin_login():
+#     """Admin Login route"""
+#     form = AdminForm()
+#     if form.validate_on_submit():
+#         email = form.email.data
+#         password = form.password.data
+#         admin_code = form.admin_code.data
+#
+#         admin = admin_confirmation(email, password, admin_code)
+#         if admin:
+#             login_user(admin)
+#             print(str(current_user))
+#             return redirect(url_for('admin_dashboard'))
+#         else:
+#             print('failed')
+#             flash('Wrong email or password', category='danger')
+#
+#     return render_template('admin.html', form=form)
+#
+#
+# @app.route('/admin_sign_up', methods=['GET', 'POST'], strict_slashes=False)
+# def admin_register():
+#     """route to register page"""
+#     form = AForm()
+#     if form.validate_on_submit():
+#         if validate_admin_email(input_email=form.email.data):
+#             flash('User with email already exist')
+#             return redirect(url_for('register.html', form=form))
+#         print('great')
+#
+#         user = Admin(first_name=form.first_name.data,
+#                      last_name=form.last_name.data,
+#                      email=form.email.data,
+#                      admin_code=form.admin_code.data
+#
+#                      )
+#         user.password = form.password.data
+#         print(form.email.data)
+#         db.insert(user)
+#         login_user(user)
+#         print(current_user)
+#
+#         return redirect(url_for('admin_dashboard'))
+#
+#     return render_template('register_admin.html', form=form)
+#
+#
+# @app.route('/admin_dashboard', methods=['GET', 'POST'], strict_slashes=False)
+# def admin_dashboard():
+#     paymentReceipts = []
+#     receipts = ActiveReceipt.objects()
+#     for receipt in receipts:
+#         paymentReceipts.append(receipt)
+#         paymentReceipts.reverse()
+#     return render_template('payment.html', mReceipts=paymentReceipts)
+#
 
 @app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
@@ -180,7 +242,18 @@ def bookings():
                           reservation_type=form.reservation_type.data,
                           amount=amt,
                           )
-
+        # areceipt = ActiveReceipt(status="Active",
+        #                          email=current_user.email,
+        #                          lot=form.lot.data,
+        #                          space=form.space.data,
+        #                          duration=duration,
+        #                          start_time=sTime,
+        #                          model=form.model.data,
+        #                          plate_number=form.plate_number.data,
+        #                          reservation_type=form.reservation_type.data,
+        #                          amount=amt,
+        #                          )
+        # db.insert(areceipt)
         uLot = Lot.objects.get(lot_name=form.lot.data)
         for space in uLot.space:
             if space.space == form.space.data:

@@ -2,12 +2,12 @@ from dotenv import load_dotenv, find_dotenv
 from mongoengine import connect
 import os
 from project.models.user import User
-from project.models.booking import Booking
+from project.models.admin import Admin
 from project.models.parking_lot import Lot
 
 from pymongo import MongoClient
 
-classes = {'User': User, 'Booking': Booking, 'Lot': Lot}
+classes = {'User': User, 'Lot': Lot}
 
 
 class DB:
