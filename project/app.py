@@ -1,15 +1,13 @@
-import base64
 from datetime import timedelta, datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-
 import stripe
-from flask import render_template, request, redirect, flash, url_for
+from flask import render_template, request, redirect, flash, url_for, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
 
 from project import app, db, login_manager
 # from project.AdminForm import AdminForm, admin_confirmation, AForm, validate_admin_email
 from project.loginForm import LoginForm, user_confirmation
-from project.bookingForms import BookingForm
+from project.bookingForms import BookingForm, dayHourChoices
 # from project.models.active_receipts import ActiveReceipt
 # from project.models.admin import Admin
 from project.models.parking_lot import Lot
@@ -123,16 +121,17 @@ def login():
 def dashboard():
     """dashboard route"""
     current_rate = 500
-    lot = Lot.objects()
+    empty_spaces = db.get_empty_space_count()
+    # lot = Lot.objects(space__status='empty').count()
     car_status = ''
     mReceipts = []
     image = []
 
     pSpace = []
-    for individual_lot in lot:
-        for individual_space in individual_lot.space:
-            if individual_space.status == 'empty':
-                pSpace.append(individual_space.space)
+    # for individual_lot in lot:
+    #     for individual_space in individual_lot.space:
+    #         if individual_space.status == 'empty':
+    #             pSpace.append(individual_space.space)
     receipts = current_user.receipts
     #
     # b = app.extensions['mongoengine'][1]
@@ -144,7 +143,7 @@ def dashboard():
     # image_data = vehicle_image.read()
     # image = base64.b64encode(image_data).decode('utf-8')
 
-    for receipt in receipts:
+    for receipt in receipts:#improve
         if receipt.status == 'Active':
             if receipt.plate_number == current_user.plate_number:
                 car_status = 'Parked'
@@ -156,7 +155,7 @@ def dashboard():
         if receipt.status == 'Active':
             mReceipts.append(receipt)
 
-    return render_template('dashboard.html', current_rate=current_rate, available_space=len(pSpace),
+    return render_template('dashboard.html', current_rate=current_rate, available_space=empty_spaces,
                            current_user=current_user, car_status=car_status, mReceipts=mReceipts, mimetype='jpg')
 
 
@@ -186,52 +185,34 @@ def stripe_payment(uId, amount):
     return redirect(checkout_session.url, code=303)
 
 
-def get_lot_and_spaces():
-    ldict = {}
-
-    lot = Lot.objects()
-
-    separator = ', '
-
-    for individual_lot in lot:
-        pSpace = []
-        for individual_space in individual_lot.space:
-            if individual_space.status == 'empty':
-                pSpace.append(individual_space.space)
-        ldict[individual_lot.lot_name] = separator.join(pSpace)
-    return ldict
-
-
-def time_left_and_duration(unit, rDuration):
-    if unit == 'hours':
-        time_left = rDuration * 60
-        duration = str(timedelta(hours=rDuration)) + 'hour(s)'
-    else:
-        time_left = rDuration * 60 * 24
-        duration = str(timedelta(days=rDuration)) + 'day(s)'
-    return duration, time_left
+def get_available_spaces(lot_name, day):
+    space_dict = {}
+    if lot_name is None:
+        return None
+    space_list = []
+    lot = db.get_lot(name=lot_name)[0]
+    for space in lot.space:
+        if day not in space.reserved_day_slot:
+            space_list.append[space.space_name]
+    space_dict['space_available'] = space_list
+    return space_dict
 
 
 @app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def bookings():
-    ldict = get_lot_and_spaces()
-
+    days = dayHourChoices('days')
     form = BookingForm()
     if form.validate_on_submit():
 
-        duration, time_left = time_left_and_duration(form.time_unit.data, form.duration.data)
+        duration = form.duration.data
 
         vehicle_image = request.files['vehicle_image']
-        sTime = form.start_time.data
+        original_datetime = datetime.now()
+        delta = timedelta(days=days.index(form.start_day.data))
+        sTime = original_datetime + delta
 
-        if form.reservation_type.data == 'On spot':
-            sTime = datetime.utcnow()
-        else:
-            sTime = form.start_time.data
-
-        amt = amount(form.duration.data, form.time_unit.data)
-        print("amount:", amt)
+        amt = amount(form.duration.data)
         receipt = Receipt(status="Active",
                           lot=form.lot.data,
                           space=form.space.data,
@@ -242,18 +223,6 @@ def bookings():
                           reservation_type=form.reservation_type.data,
                           amount=amt,
                           )
-        # areceipt = ActiveReceipt(status="Active",
-        #                          email=current_user.email,
-        #                          lot=form.lot.data,
-        #                          space=form.space.data,
-        #                          duration=duration,
-        #                          start_time=sTime,
-        #                          model=form.model.data,
-        #                          plate_number=form.plate_number.data,
-        #                          reservation_type=form.reservation_type.data,
-        #                          amount=amt,
-        #                          )
-        # db.insert(areceipt)
         uLot = Lot.objects.get(lot_name=form.lot.data)
         for space in uLot.space:
             if space.space == form.space.data:
@@ -261,14 +230,13 @@ def bookings():
                     space.status = "occupied"
                 else:
                     space.status = "reserved"
-                space.time_left = time_left
+                space.time_left = duration
                 uLot.save()
 
-        current_user_uid = current_user.uId
-        db.update_user_receipt(uId=current_user_uid, receipts=receipt)
+        db.update_user_receipt(uId=current_user.uId, receipts=receipt)
 
         return redirect(url_for('stripe_payment', uId=current_user.uId, amount=amt))
-    return render_template('bookings.html', form=form, lot=ldict)
+    return render_template('bookings.html', form=form)
 
 
 @app.route('/cancel', methods=['GET'], strict_slashes=False)
@@ -309,7 +277,7 @@ def cancel_order(uid):
             current_user.save()
             uLot = Lot.objects.get(lot_name=receipt.lot)
             for space in uLot.space:
-                if space.space == receipt.space:
+                if space.space_name == receipt.space:
                     space.time_left = 0
                     space.status = 'empty'
                     uLot.save()
@@ -376,3 +344,13 @@ def amount(duration, unit, surge=1):
         return duration * 500 * surge
     else:
         return duration * 500 * 24 * surge
+    
+
+@app.route('/api/<string:lot_name>/<string:day>', methods=['GET'])
+def get_data(lot_name, day):
+    # ldict, lot_json = get_lot_and_spaces()
+    response_dict = get_available_spaces(lot_name=lot_name, day=day)
+    return jsonify(response_dict)
+
+if __name__ == '__main__':
+    app.run(debug=True)

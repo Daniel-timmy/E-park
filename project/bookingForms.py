@@ -1,28 +1,58 @@
-from datetime import datetime
-
+import time
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, IntegerField, SubmitField, RadioField
+from wtforms import StringField, SelectField, IntegerField, SubmitField, RadioField
 from wtforms.validators import InputRequired
 
+today = ''
+def dayHourChoices(unit):
+    """ Populates the start_day choices arguments 
+    """
+    days = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"]
+    hours = hours = [[i for i in range(0, 24)]] * 6
+
+    timestamp = time.time()
+    current_date = time.ctime(timestamp)
+    current_date = current_date.split(' ')
+    day = list(current_date)
+    
+    hour = day[4].split(':')[0]
+    global today
+    today = day[0] 
+
+    idx = days.index(day[0])
+    idx =  (idx) % len(days)
+    days[:] = days[idx:] + days[:idx]
+
+    if unit == 'hours':
+        hours[0] = [i for i in range(int(hour), 24)]
+        return hours
+    elif unit == 'days':
+        return days
+    else:
+        []
 
 class BookingForm(FlaskForm):
     lot = SelectField(label='Lot', choices=['EDU', 'FET', 'LSC', 'PHY', 'LAW', 'MGT', 'SCS', 'CLS', 'CIS', 'AGR', 'MDS'],
                       validators=[InputRequired('Choose a parking lot.')])
-    space = SelectField(label="Spaces", choices=['01', '02', '03', '04', '05', '06', '07', '08',
-                                                 '09', '10', '11', '12', '13', '15', '16', '17',
-                                                 '18', '19', '20', '21', '22', '23', '24', '25'],
+    space = StringField(label="Spaces",
                         validators=[InputRequired('Choose a parking space')])
-    duration = IntegerField(label="Duration", validators=[InputRequired()])
-    start_time = DateTimeField(label="Start time", default=datetime.utcnow())
-    model = StringField(label="model", validators=[InputRequired()])
-    time_unit = SelectField(choices=['hours', 'days'],
-                            validators=[InputRequired()])
-
+    duration = IntegerField(label="How many days", validators=[InputRequired()])
+    # start_hour = SelectField(label="Start hour", choices=dayHourChoices(unit='hours'))  # dynamic
+    start_day = SelectField(label="Start day", choices=dayHourChoices(unit='days'), default=today)
+    model = StringField(label="Vehicle Model", validators=[InputRequired()])
+    # time_unit = SelectField(label="Days or Hours"
+    #                         choices=['hours', 'days'],
+    #                         validators=[InputRequired()])
     plate_number = StringField(label="Plate number", validators=[InputRequired()])
-    reservation_type = SelectField(
-        choices=['On spot', 'Reservations'],
-        validators=[InputRequired()])  # to reduce the complexity of nav pills
+    reservation_type = SelectField(label="Reservation?", choices=['Reservation', 'On spot'])
     vehicle_image = FileField(label='Vehicle Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only')])
     submit = SubmitField(label='Make payment')
+
+    # Based on the lot and space chosen a message will be displayed 
+    # to alert the user if the particular space is available and which days are still free
+
+
+
+
 

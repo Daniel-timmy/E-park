@@ -4,7 +4,6 @@ import os
 from project.models.user import User
 from project.models.admin import Admin
 from project.models.parking_lot import Lot
-
 from pymongo import MongoClient
 
 classes = {'User': User, 'Lot': Lot}
@@ -23,8 +22,10 @@ class DB:
 
     def insert(self, obj):
         """"""
-        obj.save()
-        print('saved')
+        try:
+            obj.save()
+        except:
+            raise
 
     def get_one(self, email=None, cls=None):
         """"""
@@ -36,41 +37,50 @@ class DB:
                 return None
 
     def get_obj(self, id):
-        """"""
-        # if cls not in classes.values():
-        #     return None
+        """Get User object by the provided id
 
-        all_cls = db.get_all(User)
-        for value in all_cls.values():
-            if value.uId == id:
-                return value
-        return None
+        """
+        user = User.objects(uId=id)
+        return user[0]
+
 
     def get_lot(self, name):
         """"""
-        # if cls not in classes.values():
-        #     return None
+        requested_lot = Lot.objects(lot_name=name)
+        return requested_lot
 
-        all_cls = db.get_all(Lot)
-        for value in all_cls.values():
-            if value.lot_name == name:
-                return value
-        return None
+        # all_cls = db.get_all(Lot)
+        # for value in all_cls.values():
+        #     if value.lot_name == name:
+        #         return value
+        # return None
 
     def get_all(self, cls=None):
         """"""
         o_dict = {}
         b_dict = {}
+
         if cls in classes.values():
             objs = cls.objects()
             for obj in objs:
                 o_dict[obj.uId] = obj
             b_dict.update(o_dict)
-            for key, value in b_dict.items():
-                print(f'Key: {key}, Value: {value}')
-
             return b_dict
+        else:
+            return None
+    def get_empty_space_count(self):
+        """Gets the total number of empty 
+        spaces per parking lot"""
+        pipeline = [
+            {"$unwind": "$space"},
+            {"$match": {"space.status": "empty"}},
+            {"$count": "empty_spaces_count"}
+        ]
 
+        count = Lot.objects.aggregate(*pipeline)
+        empty_spaces = 0
+        for cnt in count:
+            return cnt["empty_spaces_count"]
 
     def update_space_status(self,uLot, cUser, sStatus, rStatus, time_left):
         """"""
@@ -79,9 +89,6 @@ class DB:
         cUser.update(push__status=rStatus)
         print('receipt update succesfull')
         uLot.update(push__time_left=time_left)
-
-
-
 
     def update_user_receipt(self, uId, receipts):
         """"""
@@ -92,6 +99,4 @@ class DB:
     def delete(self):
         """"""
 
-
 db = DB()
-print('success')

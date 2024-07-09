@@ -15,7 +15,7 @@ class Receipt(EmbeddedDocument):
     lot = StringField(required=True)
     space = StringField(required=True)
     duration = StringField(required=True)
-    created_at = DateTimeField(default=datetime.utcnow(), required=False)
+    created_at = DateTimeField(default=datetime.now(), required=False)
     start_time = DateTimeField(required=False)
     model = StringField(required=True)
     plate_number = StringField(required=True)

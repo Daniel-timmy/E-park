@@ -1,7 +1,12 @@
 flask
-dotenv
+python-dotenv
 mongoengine
 pymongo
 flask_wtf
 wtforms
 datetime
+flask-bcrypt
+flask-login
+pillow
+apscheduler
+stripe
