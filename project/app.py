@@ -1,10 +1,9 @@
+import base64
 from datetime import timedelta, datetime
-from apscheduler.schedulers.background import BackgroundScheduler
 import stripe
 from flask import render_template, request, redirect, flash, url_for, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
-
-from project import app, db, login_manager
+from project import app, db, login_manager, scheduler
 # from project.AdminForm import AdminForm, admin_confirmation, AForm, validate_admin_email
 from project.loginForm import LoginForm, user_confirmation
 from project.bookingForms import BookingForm, dayHourChoices
@@ -13,6 +12,7 @@ from project.bookingForms import BookingForm, dayHourChoices
 from project.models.parking_lot import Lot
 from project.models.user import User, Receipt
 from project.userForms import UserForm, validate_email
+from IPython.display import Image
 
 app.config['SECRET_KEY'] = '23bb8ccb2331455dc681eec4'
 app.config[
@@ -21,15 +21,19 @@ app.config[
     'STRIPE_SECRET_KEY'] = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYyzbzM7bRWHvKzXxrNTzCADpH8KlP2aGRIr2O005tmzhF1Z'
 stripe.api_key = 'sk_test_51Nnk4hHFmbL2tNiZo2CbNy518UyaGeKY6xEJepWn4BfUCp1eMfmYyzbzM7bRWHvKzXxrNTzCADpH8KlP2aGRIr2O005tmzhF1Z'
 login_manager.login_view = 'login'
-
 surge = 1
 
-scheduler = BackgroundScheduler(daemon=True)
-
-
-# def receipt_lot_status_update():
-#     """"""
-
+space_name_list = ['1', '2', '3', '4', '5', '6', '7', '8','9'
+                   '10', '11', '12', '13', '14', '15', '16',
+                   '17', '18', '19', '20', '21', '22', '23', '24',
+                   '25', '26', '27', '28', '29', '30', '31', '32',
+                   '33', '34', '35', '36', '37', '38', '39', '40',
+                   '41', '42', '43', '44', '45', '46', '47', '48',
+                   '49', '50', '51', '52', '53', '54', '55', '56',
+                   '57', '58', '59', '60', '61', '62', '63', '64',
+                   '65', '66', '67', '68', '69', '70', '71', '72',
+                   '73', '74', '75', '76', '77', '78', '79', '80'
+                   ]
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -114,6 +118,19 @@ def login():
 
     return render_template('login.html', form=form)
 
+@app.route('/api/get_date_for_timer')
+def get_date():
+    """
+    An api endpoint that returns the end date for an active booking
+    """
+    receipts = current_user.receipts
+    for receipt in receipts:
+        if receipt.status == 'Active':
+            delta = timedelta(days=receipt.duration)
+            sTime = receipt.start_time + delta
+            formatted_sTime = sTime.strftime("%b %d, %Y %H:%M:%S")
+            return jsonify({'date': formatted_sTime, 'plate_number': receipt.plate_number})
+    return jsonify({'date': 'Inactive', 'plate_number': 'Inactive'})
 
 @app.route('/dashboard', methods=['GET', 'POST'], strict_slashes=False)
 @app.route('/', methods=['GET', 'POST'], strict_slashes=False)
@@ -122,41 +139,23 @@ def dashboard():
     """dashboard route"""
     current_rate = 500
     empty_spaces = db.get_empty_space_count()
-    # lot = Lot.objects(space__status='empty').count()
-    car_status = ''
+    car_status = 'Not Parked'
     mReceipts = []
-    image = []
-
-    pSpace = []
-    # for individual_lot in lot:
-    #     for individual_space in individual_lot.space:
-    #         if individual_space.status == 'empty':
-    #             pSpace.append(individual_space.space)
+   
     receipts = current_user.receipts
-    #
-    # b = app.extensions['mongoengine'][1]
-    # fs = b.connection.gridfs
-    #
-    #     # Replace 'vehicle_image' with the actual field name in your model
-    # vehicle_image = fs.get(current_user.vehicle_image.grid_id)
-    #
-    # image_data = vehicle_image.read()
-    # image = base64.b64encode(image_data).decode('utf-8')
-
-    for receipt in receipts:#improve
-        if receipt.status == 'Active':
-            if receipt.plate_number == current_user.plate_number:
-                car_status = 'Parked'
-                break
-            else:
-                car_status = 'Not parked'
-
+    profile_pic = base64.b64encode(current_user.profile_pic.read()).decode('utf-8')
+    vehicle_image = base64.b64encode(current_user.vehicle_image.read()).decode('utf-8')
     for receipt in receipts:
         if receipt.status == 'Active':
             mReceipts.append(receipt)
-
-    return render_template('dashboard.html', current_rate=current_rate, available_space=empty_spaces,
-                           current_user=current_user, car_status=car_status, mReceipts=mReceipts, mimetype='jpg')
+            if receipt.plate_number == current_user.plate_number:
+                car_status = 'Parked'
+    mReceipts.reverse()
+            
+    return render_template('dashboard.html', current_rate=current_rate, available_space=empty_spaces, 
+                           vehicle_image=vehicle_image, profile_pic=profile_pic,
+                           current_user=current_user, car_status=car_status,
+                             mReceipts=mReceipts, mimetype='jpeg', enumerate=enumerate)
 
 
 @app.route('/stripe_payment/<uId>/<amount>', methods=['GET', 'POST'], strict_slashes=False)
@@ -184,36 +183,37 @@ def stripe_payment(uId, amount):
 
     return redirect(checkout_session.url, code=303)
 
-
-def get_available_spaces(lot_name, day):
-    space_dict = {}
-    if lot_name is None:
-        return None
-    space_list = []
-    lot = db.get_lot(name=lot_name)[0]
-    for space in lot.space:
-        if day not in space.reserved_day_slot:
-            space_list.append[space.space_name]
-    space_dict['space_available'] = space_list
-    return space_dict
-
+def amount(duration, surge=1):
+    """
+    Calculates the amount to be charged
+    """
+   
+    return duration * 500 * 24 * surge
 
 @app.route('/bookings', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def bookings():
     days = dayHourChoices('days')
+    months = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30,
+            7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+    month = datetime.now().month
+    day = datetime.now().day
+   
     form = BookingForm()
     if form.validate_on_submit():
-
-        duration = form.duration.data
+        duration = int(form.duration.data)
+        end_day = day + duration
+        if end_day > months[month]:
+            end_day = end_day - months[month]
 
         vehicle_image = request.files['vehicle_image']
         original_datetime = datetime.now()
         delta = timedelta(days=days.index(form.start_day.data))
         sTime = original_datetime + delta
 
-        amt = amount(form.duration.data)
-        receipt = Receipt(status="Active",
+        amt =  duration * 500 * 24 * surge
+            
+        receipt = Receipt(status= 'Active' if form.reservation_type.data == 'On spot' else 'Inactive',
                           lot=form.lot.data,
                           space=form.space.data,
                           duration=duration,
@@ -225,15 +225,32 @@ def bookings():
                           )
         uLot = Lot.objects.get(lot_name=form.lot.data)
         for space in uLot.space:
-            if space.space == form.space.data:
+            if space.space_name == form.space.data:
+                idx = days.index(form.start_day.data)
+                i = duration-(7-idx)
                 if form.reservation_type.data == 'On spot':
                     space.status = "occupied"
+                    space.reserved_day_slot[receipt.uId] = [form.start_day.data, end_day, current_user.email]
+                    if idx + duration <= 7:
+                        space.days_filled.extend(days[idx:idx + duration])
+                    else:
+                        space.days_filled.extend(days[idx:] + days[:i])
                 else:
-                    space.status = "reserved"
+                    receipt.status = 'Reserved'
+                    space.reserved_day_slot[receipt.uId] = [form.start_day.data, end_day, current_user.email]
+                    if idx + duration <= 7:
+                        space.days_filled.extend(days[idx:idx + duration])
+                    else:
+                        space.days_filled.extend(days[idx:] + days[:i])
                 space.time_left = duration
+                space.duration = duration
+                space.start_time = sTime
+                space.email = current_user.email
                 uLot.save()
-
-        db.update_user_receipt(uId=current_user.uId, receipts=receipt)
+                break
+        # problem with the receipt
+        current_user.receipts.append(receipt)
+        current_user.save()
 
         return redirect(url_for('stripe_payment', uId=current_user.uId, amount=amt))
     return render_template('bookings.html', form=form)
@@ -260,7 +277,7 @@ def payments():
     receipts = current_user.receipts
     for receipt in receipts:
         paymentReceipts.append(receipt)
-        paymentReceipts.reverse()
+    paymentReceipts.reverse()
     return render_template('payment.html', mReceipts=paymentReceipts)
 
 
@@ -268,7 +285,6 @@ def payments():
 @login_required
 def cancel_order(uid):
     """"""
-
     mReceipts = []
     receipts = current_user.receipts
     for receipt in receipts:
@@ -334,23 +350,111 @@ def sign_out():
     return render_template('landing_page.html')
 
 
-# flash('You are successfully logged in {}'
-#       .format(user.first_name), category='primary')
-
-
-def amount(duration, unit, surge=1):
-    """"""
-    if unit == "hours":
-        return duration * 500 * surge
+def get_available_spaces(lot_name, day, duration, sp):
+    if lot_name is None or lot_name == ' ' or type(lot_name) != str:
+        print(f'Type of lot_name: {type(lot_name)}')
+        return None, {'status': f'Incorrect lot name: {lot_name}'}
+    
+    if day is None or day not in ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"]:
+        print(f'Type of day: {type(day)}')
+        return None, {'status': f'Incorrect day:{day}'}
+    
+    if duration is None or duration < 1 or duration > 7:
+        print(f'Type of duration: {type(duration)}')
+        return None, {'status': 'Incorrect duration'}
+    
+    if sp is None or type(sp) != str or sp not in space_name_list:
+        return None, {'status': 'Incorect space name'}
+    
+    days = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"]
+    idx = days.index(day)
+    day_set = set()
+  
+    if idx + duration <= 7:
+        day_set.update(days[idx:idx + duration])
     else:
-        return duration * 500 * 24 * surge
+        day_set.update(days[idx:])
+        day_set.update(days[:duration-(7-idx)])
+
+    space_dict = {}
+
+    lot = db.get_lot(name=lot_name)[0]
+    
+    for space in lot.space:
+        ln = len(day_set - set(space.days_filled))
+        if space.space_name == sp:
+            if ln == duration:
+                space_dict[f'Space{sp}'] = [list(day_set - set(space.days_filled)),ln]
+                
+                break
+            else:
+                space_dict[f'Space{sp}'] = [list(day_set - set(space.days_filled)), ln]
+        else:
+            space_dict[str(ln)] = space_dict.get(str(ln), []) + [space.space_name]
+    
+    # print(f'Space dict: {space_dict}')
+    space_dict['status'] = 'success'
+    return space_dict, {'status': 'success'}
+
+@app.route('/api/<string:lot_name>/<string:space>/<string:day>/<int:duration>', methods=['GET'])
+def get_data(lot_name, space, day, duration):
+    response_dict, status_dict = get_available_spaces(lot_name=lot_name, day=day, duration=duration, sp=space)
+    if response_dict is None:
+        # print(f'Error: {status_dict}')
+        return jsonify({'message': 'Invalid input', 'status': 'failed'})
+    print(f'Response dict: {response_dict}')
+    return jsonify(response_dict)
     
 
-@app.route('/api/<string:lot_name>/<string:day>', methods=['GET'])
-def get_data(lot_name, day):
-    # ldict, lot_json = get_lot_and_spaces()
-    response_dict = get_available_spaces(lot_name=lot_name, day=day)
-    return jsonify(response_dict)
+def update_lot_receipt_status():
+    """
+    Works with the scheduler to update the status of the receipt and
+    the space in the lot
+    """
+    from bookingForms import today
+    lots = Lot.objects()
+    todays_date = datetime.now().day
+
+    for lot in lots:
+        for space in lot.space:
+            completed = {}
+            delete_idx = []
+            starting = {}
+            for idx in space.reserved_day_slot:
+                if space.reserved_day_slot[idx][1] == todays_date:
+                    completed[idx] = space.reserved_day_slot[idx]
+                    delete_idx.append(idx)
+                    space.time_left -= 1
+                if space.reserved_day_slot[idx][0] == today:
+                    starting[idx] = space.reserved_day_slot[idx]
+                if space.reserved_day_slot[idx][1] < todays_date:# get index
+                    space.time_left -= 1
+                    space.days_filled.remove(today)
+
+            if completed:
+                for idx in completed:
+                    space.status = 'empty'
+                    lot.save()
+                    for user in User.objects().filter(email=space.reserved_day_slot[idx][2]).only('receipts'):
+                        for receipt in user.receipts:
+                            if receipt.uId == idx and receipt.space == space.space_name:
+                                receipt.status = 'expired'
+                                del space.reserved_day_slot[idx]
+                                space.days_filled.remove(today)
+                                user.save()
+                                break
+            if starting:
+                for idx in starting:
+                    space.status = 'occupied'
+                    lot.save()
+                    for user in User.objects().filter(email=space.reserved_day_slot[idx][2]).only('receipts'):
+                        for receipt in user.receipts:
+                            if receipt.uId == idx and receipt.space == space.space_name:
+                                receipt.status = 'Active'
+                                user.save()
+                                break
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    scheduler.add_job(id='receipt_lot_status_update', func=update_lot_receipt_status, trigger='interval',)
+    scheduler.start()
+    app.run(debug=True, threaded=True)

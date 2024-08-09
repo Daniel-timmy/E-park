@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +10,7 @@
     <title>E-park | Dashboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
@@ -19,253 +20,319 @@
     <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
         }
-      }
 
-
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
     </style>
 
     <!-- Custom styles for this template -->
     <link href="../static/css/dashboard.css" rel="stylesheet">
 </head>
+
 <body>
 
-<header class="navbar navbar-light sticky-top bg-light flex-md-nowrap p-0 shadow" style="margin-bottom: 100px;">
-    <a class="navbar-brand col-sm-3 col-lg-2 me-0 px-3" href="#">
-        <img class="logo" src="../static/images/epark.png" href="{{ url_for('dashboard') }}" style="height: 45px;">
-    </a>
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+    <header class="navbar navbar-light sticky-top bg-light flex-md-nowrap p-0 shadow" style="margin-bottom: 100px;">
+        <a class="navbar-brand col-sm-3 col-lg-2 me-0 px-3" href="#">
+            <img class="logo" src="../static/images/epark.png" href="{{ url_for('dashboard') }}" style="height: 45px;">
+        </a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
-    <div class="navbar-nav">
-        <div class="nav-item text-nowrap">
-            <a class="nav-link px-3" href="{{ url_for('sign_out') }}">Sign out</a>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="{{ url_for('sign_out') }}">Sign out</a>
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<div class="container-fluid">
-    <div class="row">
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-            <div class="position-sticky pt-3" style="margin-top: 10px;">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>MENU</span>
-                    <a class="link-secondary" href="#" aria-label="Add a new report">
-                        <span data-feather="plus-circle"></span>
-                    </a>
-                </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('dashboard') }}">
-                            <span data-feather="home"></span>
-                            Dashboard
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3" style="margin-top: 10px;">
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>MENU</span>
+                        <a class="link-secondary" href="#" aria-label="Add a new report">
+                            <span data-feather="plus-circle"></span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('bookings') }}">
-                            <span data-feather="file"></span>
-                            Make a booking
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('payments') }}">
-                            <span data-feather="shopping-cart"></span>
-                            Payment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile') }}">
-                            <span data-feather="bar-chart-2"></span>
-                            Profile
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ url_for('dashboard') }}">
+                                <span data-feather="home"></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('bookings') }}">
+                                <span data-feather="file"></span>
+                                Make a booking
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('payments') }}">
+                                <span data-feather="shopping-cart"></span>
+                                Payment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}">
+                                <span data-feather="bar-chart-2"></span>
+                                Profile
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="row row-cols-1 row-cols-md-4 g-4 align-items-center" style="display: flex;
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="row row-cols-1 row-cols-md-4 g-4 align-items-center" style="display: flex;
   justify-content: space-around;">
-                <div class="col">
-                    <div class="card mb-3" style="max-width: 400px; ">
+                    <div class="col">
+                        <div class="card mb-3" style="max-width: 400px; ">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start"
+                                        style="height: 110px;" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h4 class="card-title text-primary">{{ available_space }}</h4>
+                                        <h6 class="card-text text-dark">Available parking spaces</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card mb-3" style="max-width: 400px;">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start"
+                                        style="height: 110px;" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h4 class="card-title text-primary">5000 naira</h4>
+                                        <h6 class="card-text">Amount Left</h6>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card mb-3" style="max-width: 400px;">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start"
+                                        style="height: 110px;" alt="...">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h4 class="card-title text-primary">{{ current_rate }} naira/hr</h4>
+                                        <h6 class="card-text">Current rates</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body" id="div_demo" style="display:none">
+                        <h5 class="card-title">Parked: </h5>
+                        <div class="text-success">
+                            <h6 class="card-subtitle mb-2 text-muted " id="plate_number"></h6>
+                        </div>
+                        <h5 class="card-title">Time remaining:</h5>
+                        <p class="card-text" id="demo"></p>
+                        <a href="#" class="card-link">Receipt</a>
+                    </div>
+                </div>
+                <div style="margin-top: 60px;">
+                    <h5>Personal Info</h5>
+                    <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start" style="height: 110px;"
-                                     alt="...">
+                                <img src="data:image/jpeg;base64,{{ profile_pic }}" class="img-fluid rounded-start"
+                                    style="height: 250px;" alt="Profile picture">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h4 class="card-title text-primary">{{ available_space }}</h4>
-                                    <h6 class="card-text text-dark">Available parking spaces</h6>
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th scpoe="col">Name</th>
+                                                <th scpoe="col">Email</th>
+                                                <th scpoe="col">Current balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td scope="row">{{ current_user.first_name }}, {{ current_user.last_name
+                                                    }}</td>
+                                                <td>{{ current_user.email }}</td>
+                                                <td>5000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card mb-3" style="max-width: 400px;">
+                <div style="margin-top: 60px;">
+                    <h5>Vehicle Info</h5>
+                    <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start" style="height: 110px;"
-                                     alt="...">
+                                <img src="data:{{ mimetype }};base64,{{ vehicle_image }}"
+                                    class="img-fluid rounded-start" style="height: 250px;" alt="..."></img>
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h4 class="card-title text-primary">5000 naira</h4>
-                                    <h6 class="card-text">Amount Left</h6>
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th scpoe="col">Model</th>
+                                                <th scpoe="col">Plate No.</th>
+                                                <th scpoe="col">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td scope="row">{{ current_user.vehicle_model }}</td>
+                                                <td>{{ current_user.plate_number }}</td>
+                                                <td>{{ car_status }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card mb-3" style="max-width: 400px;">
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="../static/images/lp_img.jpg" class="img-fluid rounded-start" style="height: 110px;"
-                                     alt="...">
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h4 class="card-title text-primary">{{ current_rate }} naira/hr</h4>
-                                    <h6 class="card-text">Current rates</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top: 60px;">
-                <h5>Personal Info</h5>
-                <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="../static/images/profile.jpg" class="img-fluid rounded-start" style="height: 250px;"
-                                 alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <table class="table ">
-                                    <thead>
+                <div style="margin-top: 60px;">
+                    <h5>Active Bookings</h5>
+                    <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead class="thead-dark">
                                     <tr>
-                                        <th scpoe="col">Name</th>
-                                        <th scpoe="col">Email</th>
-                                        <th scpoe="col">Current balance</th>
+                                        <th scope="col"></th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Plate No.</th>
+                                        <th scope="col">Duration</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Status</th>
                                     </tr>
-                                    </thead>
-                                    <tbody>
+                                </thead>
+                                <tbody>
+                                    {% for i, receipt in enumerate(mReceipts) %}
                                     <tr>
-                                        <td scope="row">{{ current_user.first_name }}, {{ current_user.last_name }}</td>
-                                        <td>{{ current_user.email }}</td>
-                                        <td>5000</td>
+                                        <td scope="row">{{ i }}</td>
+                                        <td>{{ receipt.created_at.strftime("%Y-%m-%d") }}</td>
+                                        <td>{{ receipt.reservation_type }}</td>
+                                        <td>{{ receipt.plate_number }}</td>
+                                        <td>{{ receipt.duration }}</td>
+                                        <td>{{ receipt.amount }}</td>
+                                        <td>{{ receipt.status }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary">Cancel</button>
+                                        </td>
                                     </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top: 60px;">
-                <h5>Vehicle Info</h5>
-                <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="../static/images/v_img.jpg" class="img-fluid rounded-start" style="height: 250px;"
-                                 alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <table class="table ">
-                                    <thead>
-                                    <tr>
-                                        <th scpoe="col">Model</th>
-                                        <th scpoe="col">Plate No.</th>
-                                        <th scpoe="col">Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td scope="row">{{ current_user.vehicle_model }}</td>
-                                        <td>{{ current_user.plate_number }}</td>
-                                        <td>{{ car_status }}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                                    {% endfor %}
+                                </tbody>
 
-                            </div>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div style="margin-top: 60px;">
-                <h5>Active Bookings</h5>
-                <div class="card mb-3" style="max-width: 100%; margin-top: 20px;">
-                    <div class="card-body">
-                        <table class="table table-hover">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th scope="col"></th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Plate No.</th>
-                                <th scope="col">Duration</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for receipt in mReceipts %}
-                            <tr>
-                                <td scope="row">2</td>
-                                <td>{{ receipt.created_at.strftime("%Y-%m-%d") }}</td>
-                                <td>{{ receipt.reservation_type }}</td>
-                                <td>{{ receipt.plate_number }}</td>
-                                <td>{{ receipt.duration }}</td>
-                                <td>{{ receipt.amount }}</td>
-                                <td>{{ receipt.status }}</td>
-                                 <td>
-                                    <button type="button" class="btn btn-primary">Cancel</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
 
-                        </table>
-                    </div>
-                </div>
-            </div>
+            </main>
+        </div>
+        <script>
+            async function get_date_for_timer(url) {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data;
+            }
+            get_date_for_timer('/api/get_date_for_timer').then(data => {
+                console.log(data)
 
-        </main>
+                const datetime = data['date']
+                if (data['date'] === 'Inactive') {
+                    console.log('Date gotten' + data['date'])
+                } else {
+                    console.log('Date gotten datetime' + datetime)
+                    // let deadline = new Date(datetime)
+                    //     .getTime();
+                    let deadline = new Date("Aug 16, 2024 14:08:28")
+                        .getTime();
+
+                    let x = setInterval(function () {
+
+                        let now = new Date().getTime();
+
+                        let t = deadline - now;
+
+                        let days = Math.floor(t / (1000 * 60 * 60 * 24));
+                        let hours = Math.floor(
+                            (t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        let minutes = Math.floor(
+                            (t % (1000 * 60 * 60)) / (1000 * 60));
+                        let seconds = Math.floor(
+                            (t % (1000 * 60)) / 1000);
+                        document.getElementById('div_demo').style.display = "block"
+                        document.getElementById("demo").innerHTML =
+                            days + "d " + hours + "h " +
+                            minutes + "m " + seconds + "s ";
+                        console.log('Time remaining' + t)
+                        document.getElementById('plate_number').innerHTML = data['plate_number']
+
+
+                        if (t < 0) {
+                            clearInterval(x);
+                            document.getElementById("demo")
+                                .innerHTML = "EXPIRED";
+                            // document.getElementById('demo').style.display = "none"
+                        }
+                    }, 1000);
+                }
+            })
+
+        </script>
     </div>
-</div>
-<footer style="background-color: #000; height: 120px;">
+    <footer style="background-color: #000; height: 120px;">
 
-</footer>
+    </footer>
 
 
-<script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
         integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
         crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </body>
-</html>
 
+</html>

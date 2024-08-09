@@ -105,6 +105,10 @@
                         Booking
                     </h2>
                 </div>
+                <div id="div_not" style="display: none;">
+                    <h6>Notification</h6>
+                    <textarea name="notification" id="notification" cols="10" rows="3" style="width: 100%;"></textarea>
+                </div>
                 <div class="container-fluid border-primary row row-cols-2 g-4"
                     style="margin-top: 60px; border: 2px solid;padding: 20px; display: flex; justify-content: space-around;">
 
@@ -118,15 +122,23 @@
                                 <form class="row g-3" method="POST" enctype="multipart/form-data">
                                     {{ form.hidden_tag() }}
 
-                                    <div class="col-md-6" onclick="show_available_spaces()">
+                                    <div class="col-md-6">
                                         {{ form.lot.label(class="form-label") }}
                                         {{ form.lot(class="form-select", id="lot") }}
                                     </div>
                                     <div class="col-md-6">
-                                        {{ form.space.label(class="form-label") }}
-                                        {{ form.space(class="form-select") }}
+                                        <label for="number">Number of spaces</label>
+                                        <select name="number" id="number" onclick="show_available_spaces()">
+                                            {% for i in range(1, 81) %}
+                                              <option value="{{ i }}" >{{ i }}</option>
+                                            {% endfor %}
+                                          </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-6" style="display: none;">
+                                        {{ form.space.label(class="form-label") }}
+                                        {{ form.space(class="form-select", id='space') }}
+                                    </div>
+                                    <div class="col-md-6" onclick="total_amt()">
                                         {{ form.duration.label(class="form-label") }}
                                         {{ form.duration(class="form-control", id="duration") }}
                                     </div>
@@ -134,9 +146,9 @@
                                         {{ form.reservation_type.label(class="form-label") }}
                                         {{ form.reservation_type(id="res") }}
                                     </div>
-                                    <div class="col-md-6" id="start_day">
+                                    <div class="col-md-6">
                                         {{ form.start_day.label(class="form-label") }}
-                                        {{ form.start_day(class="form-control") }}
+                                        {{ form.start_day(class="form-control", id="start_day") }}
                                     </div>
                                     <script>
 
@@ -159,14 +171,14 @@
                                     </div>
 
                                     <!-- Display the calculated amount -->
-                                    <label for="amt" onclick="total_amt()">Click to get total:</label>
+                                    <label for="amt">Total Amount:</label>
                                     <input type="text" id="amt" style="background-color: transparent; border: 0px"
                                         readonly>
 
                                     <!-- JavaScript function -->
                                     <script>
                                         function visiblity() {
-                                            var res = document.getElementById('res').value;
+                                            let res = document.getElementById('res').value;
                                             if (res === 'Reservation') {
                                                 document.getElementById('start_day').style.display = 'block'; // Show the div
                                             } else {
@@ -175,31 +187,52 @@
 
                                         }
                                         function total_amt() {
-                                            var unit = document.getElementById('unit').value;
-                                            var duration = parseFloat(document.getElementById('duration').value);
-                                            var surge = 1;
-                                            var amount = 0;
-
-                                            if (unit === "hours") {
-                                                amount = duration * 500 * surge;
-                                            } else {
-                                                amount = duration * 500 * 24 * surge;
-                                            }
-
+                                            let duration = parseFloat(document.getElementById('duration').value);
+                                            let surge = 1; // use an api call to get the surge value
+                                            let amount = 0;
+                                            amount = duration * 500 * 24 * surge;
                                             document.getElementById('amt').value = amount;
                                         }
+
                                         function show_available_spaces() {
                                             // show available spaces for the selected lot
-                                            var lot = document.getElementById('lot').value;
-                                            fetch('/api/lots')
+                                            let lot = document.getElementById('lot').value;
+                                            let dy = document.getElementById('start_day').value;
+                                            let duration = document.getElementById('duration').value;
+                                            let space = document.getElementById('number').value;
+                                            console.log(dy)
+                                            duration = parseInt(duration);
+                                            fetch('/api/' + lot + '/' + space + '/' + dy + '/' + duration)
                                                 .then(response => response.json())
                                                 .then(data => {
+                                                    console.log(data['Space'+space][1]);
+                                                    console.log(typeof duration === 'string')
+                                                    console.log(typeof data['Space'+space][1] === 'string')
                                                     console.log(data); // Log the data for debugging purposes
+                                                    if (data['status'] === 'failed') {
+                                                        alert(data['message']);
+                                                    } else {
+
+                                                        if (data['Space'+space][1] === duration) {
+                                                            document.getElementById('space').value = space;
+                                                        } else {
+                                                            alert('The selected space is not available for the selected duration');
+                                                            let text = 'Days which the current space is avalable: ' + data['Space'+space][0];
+                                                            let text2 = ' Other spaces available for the selected duration: ' + data[duration];
+                                                            document.getElementById('div_not').style.display = 'block';
+                                                            document.getElementById('notification').innerText = text + '\n' + text2;
+                                                            document.getElementById('space').value = '';
+                                                            console.log(document.getElementById('space').value);
+                                                        }
+                                                    }
+
 
                                                     //  Update the DOM with the fetched data
                                                     // element with an id="availableSpaces" to display the results
-                                                    document.getElementById('selected_lot').innerText = lot;
-                                                    document.getElementById('lot_spaces').innerText = JSON.stringify(data[lot]);
+
+                                                    // document.getElementById('selected_lot').innerText = lot;
+                                                    // document.getElementById('space').innerText = JSON.stringify(space);
+                                                    // document.getElementById('lot_spaces').innerText = JSON.stringify(data);
                                                 })
                                                 .catch(error => {
                                                     console.error('Error fetching available spaces:', error);
@@ -215,7 +248,7 @@
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <!-- <div>
                         <div class="card border-primary mb-3">
                             <div class="card-header" onclick="show_available_spaces()">Available spaces in <h6
                                     id="selected_lot"></h6>
@@ -224,7 +257,7 @@
                                 <p class="card-text" id="lot_spaces"></p>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </main>
         </div>

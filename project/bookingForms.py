@@ -8,7 +8,7 @@ today = ''
 def dayHourChoices(unit):
     """ Populates the start_day choices arguments 
     """
-    days = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"]
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     hours = hours = [[i for i in range(0, 24)]] * 6
 
     timestamp = time.time()
@@ -37,7 +37,8 @@ class BookingForm(FlaskForm):
                       validators=[InputRequired('Choose a parking lot.')])
     space = StringField(label="Spaces",
                         validators=[InputRequired('Choose a parking space')])
-    duration = IntegerField(label="How many days", validators=[InputRequired()])
+    duration = SelectField(label="How many days", validators=[InputRequired()], 
+                           choices=['1', '2', '3', '4', '5', '6', '7'])
     # start_hour = SelectField(label="Start hour", choices=dayHourChoices(unit='hours'))  # dynamic
     start_day = SelectField(label="Start day", choices=dayHourChoices(unit='days'), default=today)
     model = StringField(label="Vehicle Model", validators=[InputRequired()])
